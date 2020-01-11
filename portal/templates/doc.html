@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-7">
+            <!--<div class="align-top" style="padding-left: 5px; padding-right: 0px; ">-->
+                {% if back_uri %}
+                    <nav class="nav ">
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <a href="#" onclick="history.back()" class="nav-link">
+                                <span class="oi oi-arrow-circle-left" title="Назад" style="font-size: 150%" aria-hidden="true"></span>
+                                </a>
+                            </li>
+                            {% if user.is_staff %}
+                            <li>
+                                <a class="nav-link" href="/admin/portal/document/{{ doc.id }}/change/" style="margin"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="/admin/portal/document/add/"><span class="oi oi-plus" title="Создать креатив" aria-hidden="true"></a>
+                            </li>
+                            {% endif %}
+
+                        </ul>
+                    </nav>
+                {% endif %}
+
+                {% include 'doc_content.html'%}
+
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+
+$(document).ready(function(){
+    $("#news_body_{{ news.id }} img").each(function(index){
+        var parent_container_width = $("#news_body_{{ news.id }}").width();
+        var pic_real_width = $( this ).get(0).naturalWidth;
+        $( this ).removeAttr('width');
+        $( this ).removeAttr('height');
+        $( this ).css('width', '');
+        $( this ).css('height', '');
+            console.log(pic_real_width);
+            console.log(parent_container_width);
+        if (pic_real_width > parent_container_width) {
+            console.log(pic_real_width);
+            console.log(parent_container_width);
+            $( this ).attr('width', '100%');
+        }
+        if (pic_real_width <= parent_container_width){
+            $( this ).attr('width', 'pic_real_width');
+        }
+    });
+});
+{% endblock %}

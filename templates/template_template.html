@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+<!--<style>-->
+    <!--th {white-space: nowrap;}-->
+<!--</style>-->
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container-fluid" style="margin-top:25px;">
+    <DIV class="col-md-2 col-sm-1"></DIV>
+
+    <div class="col-md-8 col-sm-10">
+        <h4 >Название операции</h4>
+        <form id="" role="form small" action="" method="post">{% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                    <div class="checkbox">
+                        {{ field.errors }}
+                        <label>{{ field }} {{field.label}}</label>
+                    </div>
+                {% else %}
+                    {% if field.name not in hidden_fields %}
+                        <div class="form-group ">
+                            {{ field.errors }}
+                            {{ field.label }}:{{ field }}
+                        </div>
+                    {% else %}
+                        {{ field.errors }}
+                        {{ field }}
+                    {% endif %}
+                {% endif %}
+
+            {% endfor%}
+            <input name="back_uri" id="id_back_uri" type="hidden" value="{{ back_uri }}">
+            <button class="btn btn-primary btn-sm" type="submit">Создать</button>
+            {% if back_uri %}
+                <button class="btn text-primary btn-sm" onclick="window.location='{{back_uri}}'">Выйти без сохранения</button>
+            {% endif %}
+            <!--<button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>-->
+        </form>
+
+    </div>
+
+    <DIV class="col-md-2 col-sm1"></DIV>
+
+</div>
+
+
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+
+{% endblock %}

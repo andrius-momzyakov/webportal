@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+
+<style>
+g>path:hover {
+    fill: #DDF0F9;
+}
+</style>
+<!--<style>-->
+    <!--th {white-space: nowrap;}-->
+<!--</style>-->
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+            <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+            </div>
+            <div class="col-sm-7">
+                {% if user.is_staff %}
+                <nav class="nav ">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a class="nav-link" href="/admin/portal/plainpage/{{ section.page.id }}/change/" style="margin"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {{ section.page.body|safe}}
+            </div>
+</div>
+{% endblock %}

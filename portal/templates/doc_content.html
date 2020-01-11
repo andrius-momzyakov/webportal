@@ -1,0 +1,132 @@
+{% load static %}
+
+                <h3>{{ doc.title }}</h3>
+                {% if doc.body %}
+                    <ul class="nav nav-tabs" style="margin-bottom:10px">
+                            <li id="{{ doc.get_absolute_url }}" role="presentation" class="{% if active_tab == 'document_tab' %}active{% endif %}">
+                                <a href="{% if not doc_view_url %}{{ doc.get_absolute_url }}{% else %}{{ doc_view_url }}{% endif %}">Документ</a>
+                            </li>
+                            <li id="{{ doc.get_absolute_url }}?open_summary=true" role="presentation" class="{% if active_tab == 'document_summary_tab' %}active{% endif %}">
+                                <a href="{% if not doc_view_url %}{{ doc.get_absolute_url }}{% else %}{{ doc_view_url }}{% endif %}?open_summary=true">Карточка документа</a>
+                            </li>
+                    </ul>
+                {% endif %}
+
+                {% if active_tab == 'document_summary_tab' %}
+                    <table class="table table-bordered small">
+                        <tr>
+                            <th>Статус</th>
+                            <td>
+                                {% if doc.is_active %}
+                                    <span class="oi oi-circle-check" style="color:green" title="Действует" aria-hidden="true"></span> Действует
+                                {% else %}
+                                    <span class="oi oi-circle-x" style="color:red" title="Не действует" aria-hidden="true"></span> Не действует
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Тип</th>
+                            <td>{{ doc.type_fullname }}</td>
+                        </tr>
+                        <tr>
+                            <th>Регистрационный номер</th>
+                            <td>{{ doc.num|default_if_none:"б/н" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата утверждения</th>
+                            <td>{{ doc.pub_date|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% if doc.documentattachment_set.all %}
+                        <tr>
+                            <th>Вложенные файлы</th>
+                            <td>
+                                {% for att in doc.documentattachment_set.all %}
+                                    {% if att.file_type == 'word' %}
+                                        <a style="display:block" href="{{ att.file.url }}" target="_blank">
+                                            <img  height="40px" src="{% static 'img/FileWord.png'%}"
+                                            data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                            {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                        </a>
+                                    {% else %}
+                                        {% if att.file_type == 'excel' %}
+                                            <a style="display:block" href="{{ att.file.url }}" target="_blank">
+                                                <img  height="40px" src="{% static 'img/FileExcel.png'%}"
+                                                data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                            </a>
+                                        {% else %}
+                                            {% if att.file_type == 'powerpoint' %}
+                                                <a style="display:block" href="{{ att.file.url }}"  target="_blank">
+                                                    <img  height="40px" src="{% static 'img/FilePowerPoint.png'%}"
+                                                    data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                    {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                                </a>
+                                            {% else %}
+                                                {% if att.file_type == 'pdf' %}
+                                                    <a style="display:block" href="{{ att.file.url }}"  target="_blank">
+                                                        <img  height="40px" src="{% static 'img/FilePdf.png'%}"
+                                                        data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                        {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                                    </a>
+                                                {% else %}
+                                                    {% if att.file_type == 'archive' %}
+                                                        <a style="display:block" href="{{ att.file.url }}"  target="_blank">
+                                                            <img  height="30px" style="padding:5x" src="{% static 'img/Zip.png'%}"
+                                                            data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                            {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                                        </a>
+                                                    {% else %}
+                                                        {% if att.file_type == 'image' %}
+                                                            <a style="display:block" href="{{ att.file.url }}" target="_blank">
+                                                                <img  height="30px" style="padding:5x" src="{% static 'img/Picture.png'%}"
+                                                                data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                                {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                                            </a>
+                                                        {% else %}
+                                                            <a style="display:block" href="{{ att.file.url }}" target="_blank">
+                                                                <img  height="40px" src="{% static 'img/File.png'%}"
+                                                                data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">
+                                                                {% if att.title %}{{ att.title }}{% else %}{{ att.file_basename}}{% endif %} ({{ att.filesize_repr.0 }} {{ att.filesize_repr.1 }})
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if doc.summary %}
+                        <tr>
+                            <th>Аннотация</th>
+                            <td>{{ doc.summary|safe }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if doc.uri %}
+                        <tr>
+                                <!--<th width="150px">Ccылка на внешний ресурс</th>-->
+                                <th colspan="2" >
+
+                                    <!--<a href="{{ doc.uri }}" target="_blank" -->
+                                       <!--style="display:inline-block;width:450px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{ doc.uri }}</a>-->
+                                    <a href="{{ doc.uri }}" target="_blank" style="margin:50px" title="{{ doc.uri }}" aria-hidden="true">
+                                       <!--style="display:inline-block;width:450px; overflow: scroll;">-->
+                                        Перейти на внешний ресурс ...</a>
+                                </th>
+                        </tr>
+                        {% endif %}
+                    </table>
+
+                {% else %}
+                    <b><p class="small">Статус:
+                    {% if doc.is_active %}
+                        <span class="oi oi-circle-check" style="color:green" title="Действует" aria-hidden="true"></span> Действует
+                    {% else %}
+                        <span class="oi oi-circle-x" style="color:red" title="Не действует" aria-hidden="true"></span> Не действует
+                    {% endif %}
+                    </p>
+                    </b>
+                    <div id="doc_body_{{ doc.id }}">{{ doc.body|safe }}</div>
+                {% endif %}

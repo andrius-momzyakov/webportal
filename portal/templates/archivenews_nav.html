@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+<style>
+    th {white-space: nowrap;}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav></nav>
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-9">
+            <ul class="nav nav-tabs">
+              <li id="news_summary" role="presentation" class="{% if active_tab == 'news_summary' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.0 }}">Новости КЦ</a>
+              </li>
+              <li id="regional_news" role="presentation" class="{% if active_tab == 'regional_news' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.1 }}">Новости регионов</a>
+              </li>
+              <li id="news_archive" role="presentation" class="{% if active_tab == 'news_archive' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.2 }}">Архив новостей</a>
+              </li>
+            </ul>
+            <div class="container-fluid">
+                <form class="form-inline" style="padding: 5px" id="newsarchive_search_form" action="" method="get">{% csrf_token %}
+                    {{ form.errors }}
+                    <!--<div class="form-row">-->
+                        {% for field in form %}
+                             <!--<div class="col">-->
+                                <div class="form-group">
+                                    {{ field.errors }}
+                                    {{ field.label }}:{{ field }}
+                                </div>
+                            <!--</div>-->
+                        {% endfor%}
+                        <button class="btn btn-primary " type="submit">Отобрать</button>
+                        <button class="btn btn-default " onclick="resetSearchForm('newsarchive_search_form');">Сбросить</button>
+                    <!--</div>-->
+                </form>
+                {% if news_list %}
+                    <table class="table">
+                        <thead>
+                            <tr class="small">
+                                <th>
+                                    {% if user.is_staff %}
+                                    <a class="nav-link" href="/admin/portal/newsentry/add/"><span class="oi oi-plus" title="Рихтовать!" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th width="45%">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.title }}">
+                                    Заголовок
+                                    {% if order_params.order_key == 'title' %}
+                                        {% if order_params.order_direction == 'asc' %}
+                                            <span class="oi oi-caret-top" ></span>
+                                        {% else %}
+                                            <span class="oi oi-caret-bottom" ></span>
+                                        {% endif %}
+                                    {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'title' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th>
+                                    <a href="{{ request.path_info }}{{ order_params.keys.day }}">
+                                    Дата публикации
+                                    {% if order_params.order_key == 'day' %}
+                                        {% if order_params.order_direction == 'asc' %}
+                                            <span class="oi oi-caret-top" ></span>
+                                        {% else %}
+                                            <span class="oi oi-caret-bottom" ></span>
+                                        {% endif %}
+                                    {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'day' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th width="45%">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.preview_txt }}">
+                                    Аннотация
+                                    {% if order_params.order_key == 'preview_txt' %}
+                                        {% if order_params.order_direction == 'asc' %}
+                                            <span class="oi oi-caret-top" ></span>
+                                        {% else %}
+                                            <span class="oi oi-caret-bottom" ></span>
+                                        {% endif %}
+                                    {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'preview_txt' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for news in news_list %}
+                                <tr class="tab_row">
+                                    <td>
+                                        {% if user.is_staff %}
+                                            <a class="nav-link" href="/admin/portal/newsentry/{{ news.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></a>
+                                        {% endif %}
+                                    </td>
+                                    <td width="45%"><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></td>
+                                    <td >{{ news.day|date:"d.m.Y H:i" }}</td>
+                                    <td width="45%" style="font-size:80%">{{ news.preview_txt|safe }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% include 'paginator.html' %}
+
+                {% else %}
+                    <b><small>Не найдено.</small></b>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
+{% include 'search_form_utils.html' %}
+{% include 'table_utils.html' %}
+
+
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+$(document).ready(function (){
+    $('th').hover(function(){
+
+        $(this).find('a.dropper').toggleClass('hidden'); //.each(function(i){ $(this).show(); });
+
+    }, function(){
+
+        $(this).find('a.dropper').toggleClass('hidden');    //.each(function(i){ $(this).hide(); });
+
+    }
+    );
+});
+{% endblock %}

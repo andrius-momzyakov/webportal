@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{%block content%}
+{% if form %}
+<h1>Выйти из учетной записи</h1>
+<form class="form-inline" action="" method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <table>
+    {{ form.as_table }}
+        </table>
+    <input type="submit" value="Выход" />
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid" style="margin-top:25px;">
+    <DIV class="col-md-2 col-sm-1"></DIV>
+
+    <div class="col-md-8 col-sm-10">
+        <h4 >Анкета контрагента</h4>
+        {% if form.instance.name %}
+        <h5>{{ form.instance.name }} (ИНН={{ form.instance.inn|default_if_none:"" }})</h5>
+        {% else %}
+        <h5>{{ postavshik }} (ИНН={{ inn|default_if_none:"" }})</h5>
+        {% endif %}
+        <hr>
+        {% if back_uri %}
+            <button class="btn text-primary btn-sm" onclick="window.location='{{back_uri}}'">Выйти без сохранения</button>
+        {% endif %}
+        {% if form.instance.pk %}
+        <form id="contractor_form" role="form small" action="/portal/contractor/form/{{ form.instance.pk }}/" method="post" style="width:800px">{% csrf_token %}
+        {% else %}
+        <form id="contractor_form" role="form small" action="/portal/contractor/form/new/" method="post" style="width:800px">{% csrf_token %}
+        {% endif %}
+            {% if myerror %}<ul><li>{{ myerror }}</li></ul>{% endif %}
+            {{ form.non_field_errors}}
+            {% for field in form %}
+                {% if field.field.widget.input_type != 'hidden' %}
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <div class="checkbox">
+                            {{ field.errors }}
+                            <label>{{ field }} {{field.label}}</label>
+                        </div>
+                    {% else %}
+                        <div class="form-group ">
+                            {{ field.errors }}
+                            {{ field.label }}:{{ field }}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {{ field }}
+                {% endif %}
+            {% endfor%}
+            <input name="back_uri" id="id_back_uri" type="hidden" value="{{ back_uri }}">
+            <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+            {% if back_uri %}
+                <button class="btn text-primary btn-sm" onclick="window.location='{{back_uri}}'">Выйти без сохранения</button>
+            {% endif %}
+            <!--<button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>-->
+        </form>
+
+    </div>
+
+    <DIV class="col-md-2 col-sm1"></DIV>
+
+</div>
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+
+$(function () {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] );
+
+    $('.datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'
+    });
+
+});
+
+{% endblock %}

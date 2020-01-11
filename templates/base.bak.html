@@ -1,0 +1,204 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="{% static '/node_modules/bootstrap/dist/css/bootstrap.css' %}">
+
+    <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>-->
+    <script src="{% static 'node_modules/jquery/dist/jquery.slim.min.js' %}"></script>
+
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>-->
+    <script src="{% static 'node_modules/popper.js/dist/umd/popper.min.js' %}"></script>
+
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>-->
+    <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.min.js' %}" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+    <link href="{% static 'css/open-iconic-bootstrap.css' %}" rel="stylesheet">
+    {% endblock %}
+</head>
+<body>
+
+    <!--<script src="/static/node_modules/chartist/dist/chartist.min.js"></script>-->
+
+
+<div id="loft_area" class="container-fluid" style="display:block; min-height: 135px; background-image: url('{% static 'img/MTS_200px.png' %}'); background-repeat: no-repeat; background-color:rgb(5,21,46);">
+    <div class="row">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-9">
+            <div class="text-center" style="display:inline-block; width:100%; height:78px;">
+                <h3  style="padding-top:25px; color:rgb(255,255,255); ">
+                    <span style="color:red;">М</span>ногофункциональный <span style="color:red;">И</span>нтерактивный<span style="color:red;"> Р</span>есурс <span style="color:red;">Т</span>ехнологической <span style="color:red;">А</span>ренды
+                </h3>
+
+            </div>
+        </div>
+        <div class="col-sm-2">
+            {% if user.is_authenticated %}
+                <div class="text-right" style=" "><span style="color: rgba(255,255,255,.5)" ><b>Выполнен вход:</b> {{ user.username }}</span></div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-11">
+                <nav class="navbar navbar-expand-lg navbar-dark" style=" background-color: transparent; ">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <!--<img src="{% static 'img/logo.jpg' %}"/>-->
+
+                    <div class="navbar-collapse collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav nav-fill w-75">
+
+                            <li class="nav-item ">
+                                <a class="nav-link" href="/"><span class="oi oi-home" title="Домой!" aria-hidden="true"></span></a>
+                            </li>
+
+                            {% for item in mm_items %}
+                                {% if not item.children %}
+                                    <li class="nav-item ">
+                                        <a class="nav-link" id="mm_item_{{ item.id }}" href="{{ item.section.uri }}">{{ item.label }}</a>
+                                    </li>
+                                {% else %}
+                                    {% if item.appearance == 'submenu' %}
+                                        <li class="nav-item dropdown" id="mm_item_{{ item.id }}" >
+                                            <a class="nav-link dropdown-toggle" href="#" id="mm_item_a_{{ item.id }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{ item.label }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if item.appearance == 'dropdown' %}
+                                        <li class="nav-item dropdown" id="mm_item_{{ item.id }}" >
+                                            <a class="nav-link dropdown-toggle" href="#" id="mm_item_a_{{ item.id }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{ item.label }}
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="mm_item_a_{{ item.id }}">
+                                                {% for childitem in item.children %}
+                                                    {% if childitem.children %}
+                                                        <a class="dropdown-item" href="#">{{ childitem.label }}</a>
+                                                    {% else %}
+                                                        <a class="dropdown-item" href="{{ childitem.section.uri }}">{{ childitem.label }}</a>
+                                                    {% endif %}
+                                                    {% if childitem.divider %}
+                                                        <div class="dropdown-divider"></div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+
+                        <!--<ul class="navbar-nav ml-auto">-->
+                        <ul class="navbar-nav nav-fill w25">
+                            {% if user.is_authenticated %}
+                                <li class="nav-item "><a class="nav-link" href="{% url 'logout' %}?next=/"><span class="oi oi-account-logout" title="Выйти" aria-hidden="true"></span></a></li>
+                                <li class="nav-item "><a class="nav-link" href="{% url 'password_change' %}?next=/"><span class="oi oi-key" title="Сменить пароль" aria-hidden="true"></span></a></li>
+                            {% else %}
+                                <li class="nav-item "><a class="nav-link" href="{% url 'login' %}?next=/"><span class="oi oi-account-login" title="Войти" aria-hidden="true"></span></a></li>
+                            {% endif %}
+                            {% if user.is_superuser or user.is_staff %}
+                                <li class="nav-item "><a class="nav-link" href="/admin/"><span class="oi oi-cog" title="Админка" aria-hidden="true"></a></li>
+                            {% endif %}
+
+                        </ul>
+                        <form class="form-inline my-2 my-lg-0">
+                          <input class="form-control mr-sm-2" type="search" placeholder="Найти" aria-label="Найти">
+                          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+                        </form>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block submenu %}
+
+      {% for item in mm_items %}
+            {% if item.children and item.appearance == 'submenu' %}
+                <div id="submenu_{{ item.id }}" class="container border rounded d-none submenu " style="text-align:center; margin-top:10px; margin-bottom:10px;">
+                    <h5>{{ item.label }}</h5>
+                    <ul class="nav">
+                    {% for childitem in item.children %}
+                          <li class="nav-item">
+                            <a class="nav-link" id="" href="#">{{ childitem.label }}</a>
+                          </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+      {% endfor %}
+
+{% endblock %}
+{% block content%}{% endblock %}
+<script>
+{% block script %}
+
+
+    $(document).ready(function(){
+        ;
+
+        function closeAllSubmenus(current){
+            $(".submenu").each(function (){
+                if ($(this).hasClass("d-block") && !($(this).attr("id")==current) ){
+                    $(this).removeClass("d-block");
+                    $(this).addClass("d-none")
+                }
+            });
+        }
+
+        {% for item in mm_items %}
+            {% if item.children and item.appearance == 'submenu' %}
+
+                $("#mm_item_{{ item.id }}").on("click", function(event){
+                    // $(event.relatedTarget).html('Dropdown <span class="caret"></span>');
+                    if ($("#submenu_{{ item.id }}").hasClass("d-block")){
+                        //alert('HIDE !');
+                        $("#submenu_{{ item.id }}").removeClass("d-block");
+                        $("#submenu_{{ item.id }}").addClass("d-none")
+                    } else {
+                        if ($("#submenu_{{ item.id }}").hasClass("d-none")){
+                            //alert('SHOW !');
+                            closeAllSubmenus("submenu_{{ item.id }}");
+                            $("#submenu_{{ item.id }}").removeClass("d-none");
+                            $("#submenu_{{ item.id }}").addClass("d-block")
+                        }
+                    }
+                    event.stopPropagation();
+                });
+
+                /* Пример обработчиков для стандартного бутстрапного dropdown menu
+                $("#mm_item_{{ item.id }}").on("hide.bs.dropdown", function(event){
+                    // $(event.relatedTarget).html('Dropdown <span class="caret"></span>');
+                    //alert('HIDE');
+                    if ($("#submenu_{{ item.id }}").hasClass("d-block")){
+                        $("#submenu_{{ item.id }}").removeClass("d-block");
+                        $("#submenu_{{ item.id }}").addClass("d-none")
+                    }
+                });
+                $("#mm_item_{{ item.id }}").on("show.bs.dropdown", function(event){
+                    // $(".btn").html('Dropdown <span class="caret caret-up"></span>');
+                    //alert('SHOW');
+                    if ($("#submenu_{{ item.id }}").hasClass("d-none")){
+                        $("#submenu_{{ item.id }}").removeClass("d-none");
+                        $("#submenu_{{ item.id }}").addClass("d-block")
+                    }
+                });
+                */
+            {% endif %}
+      {% endfor %}
+
+    });
+
+{% endblock %}
+</script>
+
+</body>
+</html>

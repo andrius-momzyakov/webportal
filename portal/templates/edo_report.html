@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+<style>
+    th {white-space: nowrap;}
+
+    .no_data {color: #337ab7;}
+    .rejected,.denied {color: rgb(231, 76, 60);}
+    .accepted {color: rgb(51, 153, 51);}
+    .in_process{color: #333;}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav></nav>
+
+<div class="container-fluid" >
+    <h2>Договоры аренды и данные по подключению к эдо</h2>
+
+    <form id="docs_search_form" class="form-inline small" action="" method="get">{% csrf_token %}
+        {{ form.errors }}
+            {% for field in form %}
+                    <div class="form-group mx-1 my-1">
+                        {{ field.errors }}
+                        {{ field.label }}:{{ field }}
+                    </div>
+            {% endfor%}
+            <button class="btn btn-primary btn-sm" type="submit">Отобрать</button>
+            <button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>
+            <a style="float:right;" href="{{ xl_export_uri1 }}" target="_blank">
+                <img  height="40px" src="{% static 'img/FileExcel.png'%}"
+                      data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">Сведения по Анкетам КА</a>
+            <a style="float:right;" href="{{ xl_export_uri }}" target="_blank">
+                <img  height="40px" src="{% static 'img/FileExcel.png'%}"
+                      data-toggle="tooltip" data-placement="left" title="{{ att.file_basename }}">Сведения по ЭДО</a>
+    </form>
+
+    <hr>
+
+    <div class="col-md">
+        {% if contracts %}
+        <table class="table small">
+            <thead>
+                <th></span></th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.edo_status }}">
+                        Статус подкл.
+                        {% if order_params.order_key == 'edo_status' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'edo_status' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.postavshik }}">
+                        Поставщик
+                        {% if order_params.order_key == 'postavshik' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'postavshik' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.inn }}">
+                        ИНН
+                        {% if order_params.order_key == 'inn' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'inn' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.isiop }}">
+                        ИО?
+                        {% if order_params.order_key == 'isiop' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'isiop' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.isop }}">
+                        ОСС?
+                        {% if order_params.order_key == 'isop' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'isop' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.ylfl }}">
+                        ЮЛ/ФЛ
+                        {% if order_params.order_key == 'ylfl' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'ylfl' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.body }}">
+                        Гос.?
+                        {% if order_params.order_key == 'body' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'body' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.numberdg }}">
+                        № ОСЗ
+                        {% if order_params.order_key == 'numberdg' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'numberdg' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.bename }}">
+                        Название БЕ
+                        {% if order_params.order_key == 'bename' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'bename' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.codbe }}">
+                        Код БЕ
+                        {% if order_params.order_key == 'codbe' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'codbe' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.responsible }}">
+                        Ответственный
+                        {% if order_params.order_key == 'responsible' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'responsible' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.jde_status }}">
+                        Статус в JDE
+                        {% if order_params.order_key == 'jde_status' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'jde_status' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                {% if edo_reporter %}
+                <th>
+                    Контактное лицо КА
+                </th>
+                <th>
+                    Телефоны КА
+                </th>
+                <th>
+                    email адреса КА
+                </th>
+                {% endif %}
+                <th>
+                    <a href="{{ request.path_info }}{{ order_params.keys.ozd }}">
+                        ЦТА
+                        {% if order_params.order_key == 'ozd' %}
+                            {% if order_params.order_direction == 'asc' %}
+                                <span class="oi oi-caret-top" ></span>
+                            {% else %}
+                                {% if order_params.order_direction == 'desc' %}
+                                    <span class="oi oi-caret-bottom" ></span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                    {% if order_params.order_key == 'ozd' %}
+                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                    {% endif %}
+                </th>
+                <th>Когда, кем изменено</th>
+            </thead>
+
+            <td>
+            {% for ctr in contracts %}
+            <tr {% if not ctr.jde_status %}class="no_data"
+                {% elif ctr.edo_status == "н.д." %}class="no_data"
+                {% elif ctr.edo_status == "Отказ КА" or ctr.edo_status == "Нецелесообразен" %}class="rejected"
+                {% elif ctr.edo_status == "Переведен на ЭДО" %}class="accepted"
+                {% endif %}
+            >
+                <td>{{ ctr.no_jde_contract }}</td>
+                <td><span class="
+                    {% if ctr.edo_status == 'н.д.' %}glyphicon glyphicon-star-empty
+                    {% elif ctr.edo_status == 'Нецелесообразен' %}glyphicon glyphicon-minus-sign
+                    {% elif ctr.edo_status == 'Отказ КА' %}glyphicon glyphicon-remove-sign
+                    {% elif ctr.edo_status == 'В работе' %}glyphicon glyphicon-wrench
+                    {% elif ctr.edo_status == 'Переведен на ЭДО' %}glyphicon glyphicon-ok-sign
+                    {% else %}glyphicon glyphicon-question-sign{% endif%}" title="{{ ctr.edo_status }}" aria-hidden="true"></span>
+                {% if edo_reporter %}&nbsp;&nbsp;
+                {% if not ctr.edo_report_id %}
+                <button title="Создать" aria-hidden="true" class="btn btn-default btn-sm" onclick="window.location='/portal/edo_report/add/?numberdg={{ ctr.numberdg|urlencode:"" }}&codbe={{ ctr.codbe|urlencode:"" }}&back_uri={{ back_uri|urlencode:"" }}'">
+                    <span class="glyphicon glyphicon-plus"></span></button>
+                {% else %}
+                <button title="Редактировать" aria-hidden="true" class="btn btn-default btn-sm" onclick="window.location='/portal/edo_report/change/{{ ctr.edo_report_id }}/?back_uri={{ back_uri|urlencode:"" }}'">
+                    <span class="glyphicon glyphicon-edit"></span></button>
+                {% endif %}
+                {% endif %}
+                </td>
+                <td>
+                    {% if not edo_reporter %}
+                            {% if ctr.contractor.form_status == 'received' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'in_process' %}<span class="glyphicon glyphicon-wrench in_process"
+                            {% elif ctr.contractor.form_status == 'denied' %}<span class="glyphicon glyphicon-remove-sign denied"
+                            {% elif ctr.contractor.form_status == 'excluded' %}<span class="glyphicon glyphicon-minus-sign denied"
+                            {% elif ctr.contractor.form_status == 'certif' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'certif_alt' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'denied_fully' %}<span class="glyphicon glyphicon-remove-sign denied"
+                            {% else %}<span class="glyphicon glyphicon-star-empty no_data"{% endif %} title="Статус анкеты: {% if ctr.contractor.form_status_verbose %}{{ ctr.contractor.form_status_verbose }}{% else %}не указан{% endif%}" aria-hidden="true"></span>&nbsp;&nbsp;
+                    {% else %}
+                        <button title="Статус анкеты: {% if ctr.contractor.form_status_verbose %}{{ ctr.contractor.form_status_verbose }}{% else %}не указан{% endif%}" aria-hidden="true"
+                            {% if not ctr.contractor.id %}
+                                class="btn btn-default btn-sm" onclick="window.location='/portal/contractor/form/new/?cname={{ ctr.postavshik|urlencode:"" }}&cinn={{ ctr.inn|urlencode:"" }}&numberdg={{ ctr.numberdg|urlencode:"" }}&codbe={{ ctr.codbe|urlencode:"" }}&back_uri={{ back_uri|urlencode:"" }}'">
+                            {% else %}
+                                class="btn btn-default btn-sm" onclick="window.location='/portal/contractor/form/{{ ctr.contractor.id }}/?back_uri={{ back_uri|urlencode:"" }}'">
+                            {% endif %}
+                            {% if ctr.contractor.form_status == 'received' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'in_process' %}<span class="glyphicon glyphicon-wrench in_process"
+                            {% elif ctr.contractor.form_status == 'denied' %}<span class="glyphicon glyphicon-remove-sign rejected"
+                            {% elif ctr.contractor.form_status == 'excluded' %}<span class="glyphicon glyphicon-minus-sign rejected"
+                            {% elif ctr.contractor.form_status == 'certif' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'certif_alt' %}<span class="glyphicon glyphicon-ok-sign accepted"
+                            {% elif ctr.contractor.form_status == 'denied_fully' %}<span class="glyphicon glyphicon-remove-sign denied"
+                            {% else %}<span class="glyphicon glyphicon-star-empty no_data"{% endif %}></span></button>
+                    {% endif %}
+                    <span >{{ ctr.postavshik }}</span>
+                </td>
+                <td>{{ ctr.inn|default_if_none:"н.д." }}</td>
+                <td>{{ ctr.isiop }}</td>
+                <td>{{ ctr.isop }}</td>
+                <td>{{ ctr.ylfl }}</td>
+                <td>{{ ctr.body }}</td>
+                <td>{{ ctr.numberdg }}</td>
+                <td>{{ ctr.bename }}</td>
+                <td>{{ ctr.codbe }}</td>
+                <td>{{ ctr.responsible }}</td>
+                <td>{{ ctr.jde_status }}</td>
+                {% if edo_reporter %}
+                <td>{{ ctr.contact_person|default_if_none:"" }}</td>
+                <td>{% if ctr.contact_phones%}
+                    {% for x in ctr.contact_phones_split %}
+                        {{ x|default_if_none:"" }}
+                    {% endfor %}
+                    {% endif %}</td>
+                <td>{% if ctr.contact_emails%}
+                    {% for x in ctr.contact_emails_split %}
+                        {{ x|default_if_none:"" }}<br/>
+                    {% endfor %}
+                    {% endif %}</td>
+                {% endif %}
+                <td>{{ ctr.ozd }}</td>
+                <td class="small">{% if ctr.edo_report_id %}
+                        Созд.: {{ ctr.created_by|default_if_none:"н.д." }}, {{ ctr.created_at|date:"d.m.Y H:i:s" }}
+                        {% if ctr.updated_at %}
+                            <br>
+                            Изм.: {{ ctr.updated_by|default_if_none:"н.д." }}, {{ ctr.updated_at|date:"d.m.Y H:i:s" }}
+                        {% endif %}
+                    {% endif %}</td>
+            </tr>
+            {% endfor%}
+            </tbody>
+        </table>
+
+        {% include 'paginator.html' %}
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+
+$(function () {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] );
+
+    $('.datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'
+    });
+
+});
+
+$(document).ready(function (){
+    $('th').hover(function(){
+
+        $(this).find('a.dropper').toggleClass('hidden'); //.each(function(i){ $(this).show(); });
+
+    }, function(){
+
+        $(this).find('a.dropper').toggleClass('hidden');    //.each(function(i){ $(this).hide(); });
+
+    }
+    );
+});
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-8">
+            <ul class="nav nav-tabs" style="margin-bottom:10px">
+                <li role="presentation" class="active">
+                    <a href="/portal/isys/">Ссылки на информационные системы</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="/portal/isys_docs/">Инструкции пользователя ИС</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="/portal/other_docs/">Прочие инструкции</a>
+                </li>
+            </ul>
+
+            <!--<h4 class="text-center" style="margin-bottom:10px">Ссылки на информационные системы</h4>-->
+            <!--<div class="container-fluid">-->
+            {% if not isys_list %}
+            {% if user.is_staff %}
+            <nav class="nav small" style="float:left; padding-top:5px;">
+                <ul class="nav navbar">
+                    <li style="float:left">
+                        <a class="nav-link" href="/admin/portal/infosystem/add/"><span class="oi oi-plus" title="Создать ссылку" aria-hidden="true"></span></a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+                <p>К сожалению, данных пока нет.</p>
+            {% endif %}
+            {% for is in isys_list %}
+                <div style="float:left; margin: 5px">
+                    <button  type="button" class="btn btn-lg btn-default text-primary btn-block isys_button" onclick="window.open('{{ is.url }}', 'tab')"
+                            {% if is.summary %}title="{{ is.summary }}" aria-hidden="true"{% endif %}
+                            style="width:200px; height:200px;">
+                        {% if is.image %}
+                            <img src="{{ is.image.url }}" width="{{ is.img_width }}" height="{{ is.get_img_height}}" style="float:left">
+                        {% else %}
+                            <h4>{{ is.name }}</h4>
+                        {% endif %}
+
+                    </button>
+                    {% if user.is_staff %}
+                    <nav class="nav small" style="padding-top:5px;">
+                        <ul class="nav navbar">
+                            <li style="float:left">
+                                <a class="nav-link" href="/admin/portal/infosystem/{{ is.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                            </li>
+                            <li style="float:left">
+                                <a class="nav-link" href="/admin/portal/infosystem/add/"><span class="oi oi-plus" title="Создать ссылку" aria-hidden="true"></span></a>
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                </div>
+{% comment %}
+                <div class="col-md-3" style="margin:5px; padding-left:0; padding-right:0">
+                    <div class="panel panel-default" style="margin: 0 5px 0;">
+                        <div class="panel-heading"><a href="{{is.url}}" target="_blank"><h4>{{ is.name }}</h4></a></div>
+                            {% if is.summary or is.image or user.is_authenticated %}
+                            <div class="panel-body">
+                            {% if user.is_staff %}
+                            <nav class="nav small" style="float:left; padding-top:5px;">
+                                <ul class="nav navbar">
+                                    <li style="float:left">
+                                        <a class="nav-link" href="/admin/portal/infosystem/{{ is.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                    </li>
+                                    <li style="float:left">
+                                        <a class="nav-link" href="/admin/portal/infosystem/add/"><span class="oi oi-plus" title="Создать ссылку" aria-hidden="true"></span></a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            {% endif %}
+
+                            {% if is.image %}
+                                <img src="{{ is.image.url }}" style="float:left; padding:5px">
+                            {% endif %}
+                            {% if is.summary %}
+                                <div class="small" style="float:left; ">{{ is.summary }}</div>
+                            {% endif %}
+                                <div style="clear:both"></div>
+                            </div>
+                            {% endif %}
+                            {% if is.status %}
+                                <table class="table small">
+                                <tr>
+                                    <th>Примечания</th>
+                                    <td>{{ is.status }}</td>
+                                </tr>
+                                </table>
+                            {% endif %}
+                    </div>
+                </div>
+{% endcomment %}
+            {% endfor %}
+
+            <!--</div>-->
+            <div style="clear:both"></div>
+        </div>
+    </div>
+</div>
+<script>
+/*
+    $(document).ready(function (){
+        $('.isys_button').each(function(i){ $(this).css('height', $(this).css('width') ); });
+        $(window).on('resize', function(event){
+            $('.isys_button').each(function(i){ $(this).css('height', $(this).css('width'))});
+        });
+    });
+*/
+</script>
+
+{% endblock %}
+

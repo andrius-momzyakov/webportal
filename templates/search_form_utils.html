@@ -1,0 +1,29 @@
+<script>
+
+function resetSearchForm(form_id) {
+    form = $('#' + form_id);
+    // clearing inputs
+    form.find(':input').each(function(){
+        switch (this.type) {
+            // case 'hidden':
+            case 'number':
+                this.value = 20;
+                break;
+            case 'text':
+                this.value = '';
+                break;
+            case 'radio':
+            case 'checkbox':
+                this.checked = false;
+        }
+    });
+    form.find(':text').each(function(){
+        this.innerHTML = '';
+    });
+    $('#' + form_id + ' select').val('');
+    form.attr('action', '');
+    form.submit();
+    return false;
+}
+
+</script>

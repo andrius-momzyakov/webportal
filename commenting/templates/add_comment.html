@@ -1,0 +1,89 @@
+<div style="padding-left:15px; padding-right:15px;">
+{% if comments %}
+    <hr style="border-width:1px;border-style: inset;">
+    <h4 id="comments_header">Комментарии:</h4>
+    <hr style="border-width:1px;border-style: inset;">
+{% endif %}
+{% for comment in comments %}
+<div class="small">
+    <em>{{ comment.commenter_name }} &lt;{{ comment.commenter_email }}&gt; написал {{ comment.created_at|date:"d.m.Y H:i:s" }}
+    {% if comment.updated_at %}
+        (изменено: {{ comment.updated_at|date:"d.m.Y H:i:s" }})</em>
+    {% endif %}:</em>
+    <!--<hr style="border-width:1px;border-style: inset;">-->
+    <p class="small">{{ comment.body|safe}}</p>
+    {% if comment.edit_flag %}
+    <div id="edit_link_div_{{ comment.pk }}">
+        <a href="#" onclick="toggle_comment_view_{{ comment.pk }}(event)">Редактировать</a>
+    </div>
+    <div id="edit_form_div_{{ comment.pk }}" style="display: none; ">
+        <form id="edit_form_{{ comment.pk }}" role="form small" action="/comment/edit/{{ comment.pk }}/" method="post">{% csrf_token %}
+        {{ comment.edit_form.media }}
+        {{ comment.edit_form.errors }}
+        {% for field in comment.edit_form %}
+            {% if field.name != 'parent_url' and field.name != 'body' %}
+                <div class="form-group ">
+                    {{ field.errors }}
+                    {{ field.label }}:{{ field }}
+                </div>
+            {% else %}
+                <div class="form-group ">
+                {{ field.errors }}
+                {{ field }}
+                </div>
+            {% endif %}
+        {% endfor%}
+            <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+            <button class="btn btn-default btn-sm" type="button" onclick="toggle_comment_view_{{ comment.pk }}(event)">Сбросить</button>
+        </form>
+    </div>
+    <script>
+        function toggle_comment_view_{{ comment.pk }}(event){
+            link = $('#edit_link_div_{{ comment.pk }}');
+            form = $('#edit_form_div_{{ comment.pk }}');
+            if (form.css('display') == 'none'){
+                link.css('display', 'none');
+                form.css('display', 'block');
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: form.offset().top
+                }, 500);
+                } else {
+                link.css('display', 'block');
+                form.css('display', 'none');
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: link.offset().top
+                }, 500);
+            }
+        }
+    </script>
+    {% endif %}
+    <hr style="border-width:1px;border-style: inset;">
+</div>
+{% endfor %}
+{% if not comments %}
+    <hr style="border-width:1px;border-style: inset;">
+{% endif %}
+<div class="small">
+<b>Добавить комментарий (работает в тестовом режиме!):</b>
+
+<form id="add_comment_form" role="form small" action="/comment/add/" method="post" style="width:800px">{% csrf_token %}
+    {{ add_comment_form.media }}
+    {{ add_comment_form.errors }}
+    {% for field in add_comment_form %}
+        {% if field.name != 'parent_url' and field.name != 'body' %}
+            <div class="form-group ">
+                {{ field.errors }}
+                {{ field.label }}:{{ field }}
+            </div>
+        {% else %}
+            <div class="form-group ">
+            {{ field.errors }}
+            {{ field }}
+            </div>
+        {% endif %}
+    {% endfor%}
+    <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+    <!--<button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>-->
+</form>
+</div>
+</div>

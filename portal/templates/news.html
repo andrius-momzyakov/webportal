@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-7">
+            <!--<div class="align-top" style="padding-left: 5px; padding-right: 0px; ">-->
+            {% if back_uri or user.is_authenticated %}
+                <nav class="nav"  style="float:left">
+                    <ul class="nav navbar">
+                        <li style="float:left">
+                            <a href="#" onclick="history.back()" class="nav-link">
+                            <span class="oi oi-arrow-circle-left" title="Назад" style="font-size: 150%"></span>
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li style="float:left">
+                            <a class="nav-link" href="/admin/portal/newsentry/{{ news.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></a>
+                        </li>
+                        <li style="float:left">
+                            <a class="nav-link" href="/admin/portal/newsentry/add/"><span class="oi oi-plus" title="Создать креатив" aria-hidden="true"></a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                <div style="clear:both"></div>
+            {% endif %}
+
+                {% if comments %}
+                    <a href="#" id="link_to_comments" class="small">Комментариев: {{ comments|length }}</a>
+                    <script>
+                    $('#link_to_comments').click(function() {
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $('#comments_header').offset().top
+                        }, 500);
+                    })
+
+                    </script>
+                {% endif %}
+                <h3>{{ news.title }}</h3>
+                <small class="text-muted">
+                    Опубликовано: {{ news.day }}
+                    {% if news.archive %}
+                        <br> Данная новость помещена в архив.
+                    {% endif %}
+                </small>
+                <div id="news_body_{{ news.id }}">{{ news.body|safe }}</div>
+            {% if news.comments_allowed %}
+            {% include 'add_comment.html' %}
+            {% endif %}
+
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+    {{ block.super }}
+
+$(document).ready(function(){
+    $("#news_body_{{ news.id }} img").each(function(index){
+        var parent_container_width = $("#news_body_{{ news.id }}").width();
+        var pic_real_width = $( this ).get(0).naturalWidth;
+        $( this ).removeAttr('width');
+        $( this ).removeAttr('height');
+        $( this ).css('width', '');
+        $( this ).css('height', '');
+            console.log(pic_real_width);
+            console.log(parent_container_width);
+        if (pic_real_width > parent_container_width) {
+            console.log(pic_real_width);
+            console.log(parent_container_width);
+            $( this ).attr('width', '100%');
+        }
+        if (pic_real_width <= parent_container_width){
+            $( this ).attr('width', 'pic_real_width');
+        }
+    });
+});
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content%}
+<div class="container">
+    <div style="margin-top: 25px">
+            {% if back_uri %}
+                <nav class="nav">
+                    <li>
+                        <a class="nav-link" href="#" onclick="history.back()"><span class="oi oi-arrow-circle-left" title="Назад" style="font-size: 150%" aria-hidden="true"></span></a>
+                    </li>
+                </nav>
+            {% endif %}
+        <div class="bg-warning">
+
+            {% if exception %}
+                Возникла ошибка 404: {{ exception }}
+            {% else %}
+                Ошибка 404: Извините, указанный ресурс не существует.
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

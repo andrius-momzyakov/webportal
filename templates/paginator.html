@@ -1,0 +1,66 @@
+<div style="font-size: 80%">
+    {% comment %}
+
+    {% endcomment %}
+{% if my_page_nav.paginator.num_pages == 1 %}
+    <span style="display: block; padding: 10px {% if my_page_nav.paginator_page.number == 1 %} 70px {% else %} 50px {% endif %} 10px 10px;
+     float:left; font-family: Helvetica, Arial, sans-serif; font-weight: bold; font-size: 10px;">
+    Найдено объектов: {{ my_page_nav.paginator_page.paginator.count }}
+    </span>
+    {% endif %}
+{% if my_page_nav.paginator.num_pages > 1%}
+    <span style="padding: 10px {% if my_page_nav.paginator_page.number == 1 %} 70px {% else %} 50px {% endif %} 10px 10px;
+     float:left; font-family: Helvetica, Arial, sans-serif; font-weight: bold; font-size: 10px;">
+    Найдено объектов: {{ my_page_nav.paginator_page.paginator.count }}
+    </span>
+
+
+        <nav>
+            <ul class="pagination">
+
+                {% if my_page_nav.first_page and my_page_nav.paginator_page.paginator.num_pages > 11 %}
+                        <li class="page-item"><a class="page-link" href="{{ my_page_nav.first_page.pageurl }}"><span class="oi oi-media-step-backward"  title="Первая" aria-hidden="true"></span></a></li>
+                {% endif %}
+
+                {% if my_page_nav.paginator_page.has_previous %}
+                        <li class="page-item"><a class="page-link" href="{{ my_page_nav.previous.pageurl }}"><span class="oi oi-media-skip-backward"  title="Предыдущая" aria-hidden="true"></span></a></li>
+                {% endif %}
+
+                {% if my_page_nav.toleft10 %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.toleft10.pageurl }}">На 10 назад </a></li>
+                {% endif %}
+
+                {% if my_page_nav.toleft100 %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.toleft100.pageurl }}">На 100 назад </a></li>
+                {% endif %}
+
+                {% for p in my_page_nav.nav_pages %}
+                    {% if p.pagenum == my_page_nav.paginator_page.number %}
+                        <li class="page-item active"><a class="page-link" href="{{ p.pageurl }}">{{ p.pagenum }}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="{{ p.pageurl }}">{{ p.pagenum }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if my_page_nav.toright100 %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.toright100.pageurl }}">На 100 вперед </a></li>
+                {% endif %}
+
+                {% if my_page_nav.toright10 %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.toright10.pageurl }}">На 10 вперед </a></li>
+                {% endif %}
+
+                {% if my_page_nav.paginator_page.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.next.pageurl }}"><span class="oi oi-media-skip-forward"  title="Следующая" aria-hidden="true"></span></a></li>
+                {% endif %}
+
+                {% if my_page_nav.last_page and my_page_nav.paginator_page.paginator.num_pages > 11 %}
+                    <li class="page-item"><a class="page-link" href="{{ my_page_nav.last_page.pageurl }}">
+                        <span class="oi oi-media-step-forward"  title="Последняя ({{ my_page_nav.last_page.pagenum }})" aria-hidden="true"></span></a></li>
+                {% endif %}
+
+            </ul>
+        </nav>
+
+{% endif %}
+</div>

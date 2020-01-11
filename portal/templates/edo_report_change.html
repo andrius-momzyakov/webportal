@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid" style="margin-top:25px;">
+    <DIV class="col-md-2 col-sm-1"></DIV>
+
+    <div class="col-md-8 col-sm-10">
+        <h4 >Редактирование данных по подключению к ЭДО по договору № {{ form.instance.numberdg }} (код БЕ {{ form.instance.codbe }})</h4>
+        <hr>
+        {% if back_uri %}
+            <button class="btn text-primary btn-sm" onclick="window.location='{{back_uri}}'">Выйти без сохранения</button>
+        {% endif %}
+        <form id="add_edo_form" role="form small" action="/portal/edo_report/change/{{ form.instance.pk }}/" method="post" style="width:800px">{% csrf_token %}
+            {% comment %}{{ form.media }}{% endcomment %}
+            {{ form.errors }}
+            {% for field in form %}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                    {% if field.name not in comment_cast_chk %}
+                    <div class="checkbox">
+                        {{ field.errors }}
+                        <label>{{ field }} {{field.label}}</label>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    {% if field.name not in hidden_fields %}
+                        {% if field.name not in comment_cast_chk %}
+                        <div class="form-group ">
+                            {{ field.errors }}
+                            {{ field.label }}:{{ field }}
+                        </div>
+                        {% endif %}
+                        {% if field.name in comment_fields %}
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="{{ field.name}}_cast_cmmt" class="" id="id_{{ field.name }}_cast_cmmt">
+                                    Распространить {% if field.name == 'contact_emails' %}контактные данные (лицо, тел., email)
+                                    {% else %}"{{field.label}}"{% endif %} на все договоры данного Поставщика</label>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                            {{ field.errors }}
+                            {{ field }}
+                    {% endif %}
+                {% endif %}
+
+            {% endfor%}
+            <input name="back_uri" id="id_back_uri" type="hidden" value="{{ back_uri }}">
+            <button class="btn btn-primary btn-sm" type="submit">Сохранить</button>
+            {% if back_uri %}
+                <button class="btn text-primary btn-sm" onclick="window.location='{{back_uri}}'">Выйти без сохранения</button>
+            {% endif %}
+            <!--<button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>-->
+        </form>
+
+    </div>
+
+    <DIV class="col-md-2 col-sm1"></DIV>
+
+</div>
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+
+$(function () {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] );
+
+    $('.datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'
+    });
+
+});
+
+{% endblock %}

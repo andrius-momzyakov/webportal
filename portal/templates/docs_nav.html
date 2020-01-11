@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+<style>
+    th {white-space: nowrap;}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav></nav>
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-9">
+            <ul class="nav nav-tabs" style="margin-bottom:10px">
+                {% for ref in DOCS_TABS_REFS %}
+                    <li id="{{ ref.0 }}" role="presentation" class="{% if active_tab == ref.0 %}active{% endif %}">
+                        <a href="{{ ref.1 }}">{{ ref.2 }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="container-fluid">
+                {% if docs_in_navs_to_veil %}
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="small"><b>Найти инструкции по определенным тематикам можно здесь:</b></span>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="nav">
+                            <li><a href="/portal/isys_docs/">Инструкции пользователя ИС</a></li>
+                            <li><a href="/portal/other_docs/">Прочие инструкции</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                {% endif %}
+                {% if docs_type_list_check %}
+                <form id="docs_search_form" class="form-inline small" action="" method="get">{% csrf_token %}
+                    {{ form.errors }}
+                        {% for field in form %}
+                                <div class="form-group mx-1 my-1">
+                                    {{ field.errors }}
+                                    {{ field.label }}:{{ field }}
+                                </div>
+                        {% endfor%}
+                        <button class="btn btn-primary btn-sm" type="submit">Отобрать</button>
+                        <button class="btn btn-default btn-sm" onclick="resetSearchForm('docs_search_form');">Сбросить</button>
+                </form>
+                {% endif %}
+                {% if docs_list %}
+                    <table class="table small">
+                        <thead >
+                            <tr>
+                                <th>
+                                    {% if user.is_staff %}
+                                        <a class="nav-link" href="/admin/portal/document/add/"><span class="oi oi-plus" title="Добавить документ" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th id="id_is_active_h">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.is_active }}">
+                                        Статус
+                                        {% if order_params.order_key == 'is_active' %}
+                                            {% if order_params.order_direction == 'asc' %}
+                                                <span class="oi oi-caret-top" ></span>
+                                            {% else %}
+                                                {% if order_params.order_direction == 'desc' %}
+                                                    <span class="oi oi-caret-bottom" ></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'is_active' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                {% if active_tab == 'all_docs' or active_tab == 'regulations' %}
+                                    <th id="id_type_h">
+                                        <a href="{{ request.path_info }}{{ order_params.keys.type }}">Тип
+                                        {% if order_params.order_key == 'type' %}
+                                            {% if order_params.order_direction == 'asc' %}
+                                                <span class="oi oi-caret-top" ></span>
+                                            {% else %}
+                                                {% if order_params.order_direction == 'desc' %}
+                                                    <span class="oi oi-caret-bottom" ></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                        </a>
+                                        {% if order_params.order_key == 'type' %}
+                                            <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                    </th>
+                                {% endif %}
+                                <th id="id_pub_date_h" class="text-center">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.pub_date }}">Дата утв.
+                                        {% if order_params.order_key == 'pub_date' %}
+                                            {% if order_params.order_direction == 'asc' %}
+                                                <span class="oi oi-caret-top" ></span>
+                                            {% else %}
+                                                {% if order_params.order_direction == 'desc' %}
+                                                    <span class="oi oi-caret-bottom" ></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'pub_date' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th id="id_num_h">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.num }}">Рег.№
+                                        {% if order_params.order_key == 'num' %}
+                                            {% if order_params.order_direction == 'asc' %}
+                                                <span class="oi oi-caret-top" ></span>
+                                            {% else %}
+                                                {% if order_params.order_direction == 'desc' %}
+                                                    <span class="oi oi-caret-bottom" ></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'num' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th id="id_title_h">
+                                    <a href="{{ request.path_info }}{{ order_params.keys.title }}">Наименование
+                                        {% if order_params.order_key == 'title' %}
+                                            {% if order_params.order_direction == 'asc' %}
+                                                <span class="oi oi-caret-top" ></span>
+                                            {% else %}
+                                                {% if order_params.order_direction == 'desc' %}
+                                                    <span class="oi oi-caret-bottom" ></span>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </a>
+                                    {% if order_params.order_key == 'title' %}
+                                        <a href="{{ order_params.drop_order_url }}" class="dropper hidden"><span class="oi oi-x" title="Сброс cортировки" aria-hidden="true"></span></a>
+                                    {% endif %}
+                                </th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in docs_list %}
+                                <tr class="tab_row" onclick="window.location='{{ doc.get_absolute_url }}'">
+                                    <td class="document_id_{{ doc.id }}" >
+                                        {% if user.is_staff %}
+                                        <a class="nav-link " href="/admin/portal/document/{{ doc.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="document_id_{{ doc.id }}">
+                                        {% if doc.is_active %}
+                                            <span class="oi oi-circle-check" style="color:green" title="Действует" aria-hidden="true"></span>
+                                        {% else %}
+                                            <span class="oi oi-circle-x" style="color:red" title="Не действует" aria-hidden="true"></span>
+                                        {% endif %}
+                                    </td>
+                                    {% if active_tab == 'all_docs' or active_tab == 'regulations' %}
+                                        <td>{{ doc.type_fullname }}</td>
+                                    {% endif %}
+                                    <td class="text-center document_id_{{ doc.id }}">{{ doc.pub_date|date:"d.m.Y" }}</td>
+                                    <td  class="document_id_{{ doc.id }}">
+                                        {{ doc.num|default_if_none:"б/н" }}
+                                    </td>
+                                    <td  class="document_id_{{ doc.id }}">
+                                        {{ doc.title }}
+                                    </td>
+                                    <td class="document_id_{{ doc.id }}">
+                                        {% if doc.documentattachment_set.all %}<span class="oi oi-paperclip" title="Есть вложенные файлы" aria-hidden="true"></span>{% endif %}
+                                    </td>
+                                    <td class="document_id_{{ doc.id }}">
+                                        {% if doc.uri %}<a href="{{ doc.uri }}" target="_blank"><span class="oi oi-external-link" title="{{ doc.uri }}" aria-hidden="true"></span></a>{% endif %}
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% include 'paginator.html' %}
+
+                {% else %}
+                    {% if user.is_staff %}
+                        <a class="nav-link" href="/admin/portal/document/add/"><span class="oi oi-plus" title="Добавить документ" aria-hidden="true"></span></a>
+                    {% endif %}
+                    {% if not docs_in_navs_to_veil %}
+                        <b><small>Не найдено.</small></b>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
+{% include 'search_form_utils.html' %}
+{% include 'table_utils.html' %}
+
+<script>
+
+$(function () {
+    /*
+    function GetURLParameter(sParam){
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+        return false;
+    }​
+
+    var portal_doc_status = GetURLParameter('is_active');
+    var form = $('#docs_search_form');
+
+    if !(portal_doc_status){
+        form.attr('action', '');
+        form.submit();
+    }
+    */
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $('#id_pub_date_from').css('width', '12rem');
+    $('#id_pub_date_to').css('width', '12rem');
+
+    $('tr.tab_row').css('cursor', 'pointer');
+
+
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block script%}
+{{ block.super }}
+
+$(function () {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] );
+
+    $('.datepicker').datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: 'yy-mm-dd'
+    });
+
+});
+
+$(document).ready(function (){
+    $('th').hover(function(){
+
+        $(this).find('a.dropper').toggleClass('hidden'); //.each(function(i){ $(this).show(); });
+
+    }, function(){
+
+        $(this).find('a.dropper').toggleClass('hidden');    //.each(function(i){ $(this).hide(); });
+
+    }
+    );
+});
+{% endblock %}

@@ -1,0 +1,32 @@
+<div class="hidden-xs">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title text-center">ЛЕНТА НОВОСТЕЙ</h3>
+    </div>
+    <div class="panel-body">
+        {% for entry in published %}
+            <div id="news_feed_entry_container_{{ entry.id }}" class="text-info text-left" style="margin-bottom:10px">
+                <!--<div id="news_feed_entry_title_link_{{ entry.id }}" style="padding-left:15px; padding-right:5px;">-->
+                <div id="news_feed_entry_title_link_{{ entry.id }}">
+                    <a class="text-muted" href="{{ entry.get_absolute_url }}"><b>
+                        <small><b>{{ entry.title }}</b></small>
+                        {% if entry.preview_img %}
+                            <img src="{{ entry.preview_img.url }}" width="100%" />
+                        {% endif %}
+                        <div style="font-size:70%">
+                            <small>{{ entry.day|date:"d.m.Y H:i" }}</small>
+                        </div></b>
+                    </a>
+
+                </div>
+                <!--<br/>-->
+
+            </div>
+        {% endfor %}
+
+
+    </div>
+</div>
+
+
+</div>

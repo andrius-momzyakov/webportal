@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head%}
+{{ block.super }}
+<style>
+    .head {
+        {% if user.is_authenticated %}
+            width:674px;
+        {% else %}
+            width:630px;
+        {% endif %}
+        /*height:142px;*/
+        /* border: 2px solid #ccc;*/
+        /*border: 2px solid #c62b2b;*/
+        border: 2px solid #f38686;
+        /* color: #333; */
+        /*background-color: #f5f5f5;*/
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+        display: block;
+        margin-bottom: 15px;
+    }
+    .child {
+        {% if user.is_authenticated %}
+            width:674px;
+        {% else %}
+            width:630px;
+        {% endif %}
+        /*height:142px;*/
+        /* border: 2px solid #ccc; */
+        /* border: 2px solid #c62b2b;*/
+        border: 2px solid #f38686;
+        /* color: #333; */
+        /* background-color: #f5f5f5; */
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .child_offset {
+        margin-left:50px;
+    }
+
+    .spec {
+        {% if user.is_authenticated %}
+            width:574px;
+        {% else %}
+            width:530px;
+        {% endif %}
+        /* height:110px; */
+        /* border: 2px solid #ccc; */
+        /*border: 2px solid #c62b2b;*/
+        border: 2px solid #f38686;
+        /* color: #333; */
+        /* background-color: #f5f5f5; */
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    inner-div {
+        max_height:100px;
+    }
+
+    .child:hover {
+        background-color: #DDF0F9;
+        background-color: #fceaea;
+
+    }
+
+    div.child>div:hover {
+        cursor:pointer;
+    }
+
+    .spec:hover {
+        background-color: #DDF0F9;
+        background-color: #fceaea;
+    }
+
+    .head:hover {
+        background-color: #DDF0F9;
+        background-color: #fceaea;
+
+    }
+
+    .photo {
+        display: inline-block;
+        width:150px;
+        height:150px;
+        margin-top:10px;
+        margin-left:10px;
+        margin-bottom: 10px;
+        float:left;
+    }
+
+    .no-photo {
+        display: inline-block;
+        width:150px; height:150px;
+        border: 1px dotted grey;
+        margin-top:3px;
+        margin-left:10px;
+        margin-bottom: 10px;
+        float:left;
+    }
+
+    .ou-photo {
+        display: inline-block;
+        width:150px;
+        height:150px;
+        margin-top:10px;
+        margin-left:10px;
+        float:left;
+    }
+
+    .ou-no-photo {
+        display: inline-block;
+        width:150px; height:150px;
+        border: 1px dotted grey;
+        margin-top:3px;
+        margin-left:10px;
+        float:left;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+            <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+            </div>
+            <div class="col-sm-8">
+
+                <h3>Организационная Структура Технологической аренды</h3>
+
+                <!--<ul class="nav navbar child_offset">-->
+                <ul class="nav nav-pills" style="margin-bottom:5px">
+
+                    <!--<li style="float:left">-->
+                    <li role="presentation">
+                        <!--<a href="#" onclick="window.location='{{ back_uri }}'" class="nav-link">-->
+                        <a href="#" onclick="window.history.back()" class="nav-link">
+                        <span class="oi oi-arrow-circle-left" title="Назад"></span>
+                        </a>
+                    </li>
+
+                    {% if children %}
+                    <!--<li style="float:left">-->
+                    <li role="presentation" class="{% if not show_members and not show_duties and children %}active{% endif %}">
+                        <a class="nav-link " href="{{ request.path_info }}?structure={{ structure }}">Оргструктура
+                            <!--<span class="oi oi-list-rich" title="Оргструктура" aria-hidden="true"></span>-->
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if duties %}
+                    <!--<li style="float:left">-->
+                    <li role="presentation" class="{% if show_duties %}active{% endif %}">
+                        <a class="nav-link " href="{{ request.path_info }}?show_duties=&structure={{ structure }}">Ответственные по функциям
+                            <!--<span class="oi oi-people" title="Все сотрудники" aria-hidden="true"></span>-->
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if ou.get_common_members|length > 0 %}
+                    <li role="presentation"  class="{% if show_members %}active{% endif %}">
+                        <a class="nav-link" href="{{ request.path_info }}?show_members=&structure={{ structure }}">Все сотрудники
+                            <!--<span class="oi oi-people" title="Все сотрудники" aria-hidden="true"></span>-->
+                        </a>
+                    </li>
+                    {% endif %}
+
+                </ul>
+
+                <div class="head" id="{{ ou.pk }}">
+                    {% if user.is_staff %}
+                        <ul class="nav navbar" style="float:left;">
+                            <li style="float:left">
+                                <a class="nav-link" href="/admin/portal/orgunit/{{ ou.pk }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                            </li>
+                        </ul>
+                    {% endif %}
+
+                    {% if not ou.get_heads.0.0.photo %}
+                    <div class="ou-no-photo"></div>
+                    {% else %}
+                    <div class="ou-photo">
+                        <img src="{{ ou.get_heads.0.0.photo.url }}" height="150">
+                    </div>
+                    {% endif %}
+
+                    <div class="" style="display: block; width: 350px;float:left; ">
+                        <div class="" style="display: block; width: 350px;">
+                            <h4>{{ ou.get_heads.0.0.surname|default:"н.д."}} {{ ou.get_heads.0.0.name|default:""}} {{ ou.get_heads.0.0.second_name|default:""}}</h4>
+                            <p><b>{{ ou.name }}</b></p>
+                            <p>{{ ou.get_heads.0.1.name|default:"" }}</p>
+                            <p>{{ ou.block|default:"" }}</p>
+                        </div>
+                        <div class="" style="display: block; width:150px;  ">
+                            <div class="small inner-div" style="display: block; width:150px; ">
+                                <p><span class="oi oi-phone" title="Моб. телефон" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    <b>{{ ou.get_heads.0.0.mphone|default:"н.д." }}</b></p>
+                                <p><img src="{% static 'img/phone_oldschool1.png' %}" width="14" height="14" alt="IP тел."
+                                        style="color:grey; margin-left:5px; margin-right:5px;">
+                                    <b>{{ ou.get_heads.0.0.phone|default:"н.д." }}</b></p>
+                                <p><span class="oi oi-envelope-closed" title="Email" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    {% if ou.get_heads.0.0.email %}
+                                    <a href="mailto:{{ ou.get_heads.0.email }}">{{ ou.get_heads.0.0.email|default:"н.д." }}</a>
+                                    {% else %}
+                                    н.д.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+
+
+                <div style="clear:both"></div>
+                {% if show_members %}
+                    {% if ou.get_common_members|length == 0 %}<p>Отсутствуют сотрудники непосредственного подчинения.</p>{% endif %}
+                    {% for spec, pos in ou.get_common_members %}
+                    <div class="spec " id="person_{{ spec.pk }}" >
+                        {% if user.is_staff %}
+                            <ul class="nav navbar" style="float:left;">
+                                <li style="float:left">
+                                    <a class="nav-link" href="/admin/portal/specialist/{{ spec.pk }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                </li>
+                            </ul>
+                        {% endif %}
+
+                        {% if not spec.photo %}
+                        <!--<div style="display: inline-block; width:100px; height:100px; border: 1px dotted grey; margin-top:3px; margin-left:20px; float:left;"></div>-->
+                        <div class="no-photo"></div>
+                        {% else %}
+                        <!--<div style="display: inline-block; width:100px; height:100px; margin-top:3px; margin-left:20px; float:left;">-->
+                        <div class="photo">
+                            <img src="{{ spec.photo.url }}" height="150">
+                        </div>
+                        {% endif %}
+
+
+                        <div style="display: inline-block; width: 250px; float:left;">
+                            <div style="display: block; width: 250px; ">
+                                <h4>{{ spec.surname|default:"н.д."}} {{ spec.name|default:""}} {{ spec.second_name|default:""}}</h4>
+                                <!--<p><b>{{ ou.name }}</b></p>-->
+                                <p><b>{{ pos.name|default_if_none:"" }}</b></p>
+                                <!--<p>{{ ou.block|default_if_none:"" }}</p>-->
+                            </div>
+                            <div class="small inner-div" style="display: block; width:250px; float:left; ">
+                                <p><span class="oi oi-phone" title="Моб. телефон" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    <b>{{ spec.mphone|default:"н.д." }}</b></p>
+                                <p><img src="{% static 'img/phone_oldschool1.png' %}" width="14" height="14" alt="IP тел."
+                                        style="color:grey; margin-left:5px; margin-right:5px;">
+                                    <b>{{ spec.phone|default:"н.д." }}</b></p>
+                                <p><span class="oi oi-envelope-closed" title="Email" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    {% if spec.email %}
+                                    <a href='mailto:{{ spec.email }}'>{{ spec.email }}</a>
+                                    {% else %}
+                                    н.д.
+                                    {% endif %}
+
+                                </p>
+                            </div>
+                        </div>
+                    <div style="clear:both;"></div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if show_duties %}
+                    {% if duties %}
+                    <table class="table">
+                        <tbody>
+                        {% for duty in duties %}
+                            <tr>
+
+                                <td>
+                                {% if duty.content %}
+                                    <div id="spec_duties_{{ spec.pk }}" style="border: 2px dashed #f38686; padding: 5px; border-radius:15px; ">
+                                        <b>{{ duty.content|safe }}</b>
+                                    </div>
+                                {% endif %}
+                                </td>
+                                <td>
+                                {% for spec, pos in duty.get_common_memberships %}
+                                    <div class="spec " id="person_{{ spec.pk }}" >
+                                        {% if user.is_staff %}
+                                            <ul class="nav navbar" style="float:left;">
+                                                <li style="float:left">
+                                                    <a class="nav-link" href="/admin/portal/specialist/{{ spec.pk }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                                </li>
+                                            </ul>
+                                        {% endif %}
+
+                                        {% if not spec.photo %}
+                                        <div class="no-photo"></div>
+                                        {% else %}
+                                        <div class="photo">
+                                            <img src="{{ spec.photo.url }}" height="150">
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="" style="display: inline-block; width:150px; float:left; margin-top:10px;">
+                                            <div style="display: block; width: 250px;">
+                                                <h4>{{ spec.surname|default:"н.д."}} {{ spec.name|default:""}} {{ spec.second_name|default:""}}</h4>
+                                                <!--<p><b>{{ ou.name }}</b></p>-->
+                                                <p><b>{{ pos.name|default_if_none:"" }}</b></p>
+                                                <!--<p>{{ ou.block|default_if_none:"" }}</p>-->
+                                            </div>
+
+                                            <div class="small inner-div" style="display: block; width:150px; ">
+                                                <p><span class="oi oi-phone" title="Моб. телефон" aria-hidden="true"
+                                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                                    <b>{{ spec.mphone|default:"н.д." }}</b></p>
+                                                <p><img src="{% static 'img/phone_oldschool1.png' %}" width="14" height="14" alt="IP тел."
+                                                        style="color:grey; margin-left:5px; margin-right:5px;">
+                                                    <b>{{ spec.phone|default:"н.д." }}</b></p>
+                                                <p><span class="oi oi-envelope-closed" title="Email" aria-hidden="true"
+                                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                                    {% if spec.email %}
+                                                    <a href='mailto:{{ spec.email }}'>{{ spec.email }}</a>
+                                                    {% else %}
+                                                    н.д.
+                                                    {% endif %}
+
+                                                </p>
+                                            </div>
+                                        </div>
+                                    <div style="clear:both;"></div>
+                                    </div>
+                                {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                {% endif %}
+
+                {% if not show_members and not show_duties %}
+
+                    {% for child in children %}
+                    <div class="child child_offset" id="{{ child.pk }}" onclick="window.location='{{ child.get_absolute_url }}'">
+                        {% if user.is_staff %}
+                            <ul class="nav navbar" style="float:left;">
+                                <li style="float:left">
+                                    <a class="nav-link" href="/admin/portal/orgunit/{{ child.pk }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                </li>
+                            </ul>
+                        {% endif %}
+
+                        {% if not child.get_heads.0.0.photo %}
+                        <div class="ou-no-photo"></div>
+                        {% else %}
+                        <div class="ou-photo">
+                            <img src="{{ child.get_heads.0.0.photo.url }}" height="150">
+                        </div>
+                        {% endif %}
+
+                        <div class="" style="display: inline-block; width:150px; float:left;">
+                            <div style="display: block; width: 350px; ">
+                                <h4>{{ child.get_heads.0.0.surname|default:"н.д."}} {{ child.get_heads.0.0.name|default:""}} {{ child.get_heads.0.0.second_name|default:""}}</h4>
+                                <p><b>{{ child.name }}</b></p>
+                                <p>{{ child.get_heads.0.1.name|default_if_none:"" }}</p>
+                                <p>{{ child.block|default_if_none:"" }}</p>
+                            </div>
+                            <div class="small inner-div" style="display: block; width:150px; ">
+                                <p><span class="oi oi-phone" title="Моб. телефон" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    <b>{{ child.get_heads.0.0.mphone|default:"н.д." }}</b></p>
+                                <p><img src="{% static 'img/phone_oldschool1.png' %}" width="14" height="14" alt="IP тел."
+                                        style="color:grey; margin-left:5px; margin-right:5px;">
+                                    <b>{{ child.get_heads.0.0.phone|default:"н.д." }}</b></p>
+                                <p><span class="oi oi-envelope-closed" title="Email" aria-hidden="true"
+                                         style="color: grey; margin-left:5px; margin-right:5px;"></span>
+                                    {% if child.get_heads.0.0.email %}
+                                    <a href='mailto:{{ child.get_heads.0.0.email }}'>{{ child.get_heads.0.0.email }}</a>
+                                    {% else %}
+                                    н.д.
+                                    {% endif %}
+
+                                </p>
+                            </div>
+                        </div>
+                    <div style="clear:both;"></div>
+                    </div>
+
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+</div>
+<script>
+$(document).ready(function(){
+
+    var $head = $('#{{ ou.pk }}');
+    if ($head.length) {
+        var $top = $head.position().top + 2 + $head.height();
+        console.log($top);
+    }
+
+{% if ou.duties %}
+
+    $('.col-sm-8').append('<div id="duties_{{ ou.pk }}" style="position:absolute; display:none; ' +
+               'border: 2px dashed #f38686; background-color: #f5f3d1; padding: 5px; border-radius:15px; top:' + $head.position().top +
+               'px; left:' + ($head.outerWidth(true) + 30) +
+               'px; width:300px; "></div>');
+
+    $('#duties_{{ ou.pk }}').html('{{ ou.duties|safe }}');
+
+    $('#{{ ou.pk }}').hover(
+        function(){
+            $('#duties_{{ ou.pk }}').css('display', 'inline-block');
+        },
+        function(){
+            $('#duties_{{ ou.pk }}').css('display', 'none');
+        }
+    );
+
+{% endif %}
+
+{% if not show_members or not show_duties%}
+{% for child in children %}
+
+    var current = $('#{{ child.pk}}');
+
+    $('.col-sm-8').append('<div style="position:absolute; display:inline-block; top:' +
+               ($head.position().top + 2 + $head.height()) +
+               'px; left:34px; height:' + (current.position().top + 50 - $top) +
+               'px; width:30px; border-left: 2px solid #f38686; border-bottom: 1px solid #f38686;"></div>');
+
+    {% if child.duties %}
+
+    $('.col-sm-8').append('<div id="duties_{{ child.pk }}" style="position:absolute; display:none; ' +
+               'border: 2px dashed #f38686; background-color:  #f5f3d1; padding: 5px; border-radius:15px; top:' + current.position().top +
+               'px; left:' + (current.outerWidth(true) + 30) +
+               'px; width:300px; "></div>');
+
+    //console.log('{{ child.duties|safe }}');
+
+    $('#duties_{{ child.pk }}').html('{{ child.duties|safe }}');
+
+    $('#{{ child.pk }}').hover(
+        function(){
+            $('#duties_{{ child.pk }}').css('display', 'inline-block');
+        },
+        function(){
+            $('#duties_{{ child.pk }}').css('display', 'none');
+        }
+    );
+
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if show_members %}
+{% for spec, pos in ou.get_common_members %}
+
+    var current = $('#person_{{ spec.pk}}');
+
+    {% if pos.get_duties %}
+
+    $('.col-sm-8').append('<div id="spec_duties_{{ spec.pk }}" style="position:absolute; display:none; ' +
+               'border: 2px dashed #f38686; background-color: #e2f8dd; padding: 5px; border-radius:15px; top:' + current.position().top +
+               'px; left:' + (current.outerWidth(true) + 30) +
+               'px; width:300px; "></div>');
+
+    $('#spec_duties_{{ spec.pk }}').html('{{ pos.get_duties|safe }}');
+
+    $('#person_{{ spec.pk }}').hover(
+        function(){
+            $('#spec_duties_{{ spec.pk }}').css('display', 'inline-block');
+        },
+        function(){
+            $('#spec_duties_{{ spec.pk }}').css('display', 'none');
+        }
+    );
+
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+});
+
+
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-9">
+            <ul class="nav nav-tabs" style="margin-bottom:10px">
+              <li id="news_summary" role="presentation" class="{% if active_tab == 'news_summary' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.0 }}">Новости КЦ</a>
+              </li>
+              <li id="regional_news" role="presentation" class="{% if active_tab == 'regional_news' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.1 }}">Новости регионов</a>
+              </li>
+              <li id="news_archive" role="presentation" class="{% if active_tab == 'news_archive' %}active{% endif %}">
+                <a href="{{ news_tabs_refs.2 }}">Архив новостей</a>
+              </li>
+            </ul>
+            {% if news_trmatrix %}
+                <!--<div class="row border-bottom ml-1">-->
+                {% for row in news_matrix %}
+                    <div class="row ">
+
+                        <!--<div class="col-sm {% if not forloop.last %}border-right{% endif %}">-->
+                        {% for item in row %}
+                            <div class="col-sm-4 {% if not forloop.first and item %}border-left{% endif %} {% if item %}border-bottom{% endif %}">
+                                <!--<div class="align-top mt-1 p-1" >-->
+                                    {% if item %}
+                                        <div style="">
+                                        <!--<div class="panel panel-default">-->
+                                            <!--<div class="panel-heading">-->
+                                                <!--<h5 class="panel-title">{{ item.title }}</h5>-->
+                                                <h3>{{ item.title }}</h3>
+                                            <!--</div>-->
+                                            <!--<div class="panel-body">-->
+                                                {% if item.preview_img_width_pct > 45 %}
+                                                    {% if item.preview_img %}
+                                                        <img src="{{ item.preview_img.url }}" width="{{ item.preview_img_width_pct }}%" />
+                                                    {% endif %}
+                                                {% endif %}
+                                                {% if item.preview_txt %}
+                                                    <div style="">
+                                                        {% if item.preview_img_width_pct <= 45 %}
+                                                            {% if item.preview_img %}
+                                                                <img src="{{ item.preview_img.url }}" width="{{ item.preview_img_width_pct }}%"
+                                                                        style="float:left; margin-right:5%"/>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        {{ item.preview_txt|safe }}
+                                                    </div>
+                                                <div style="clear:both"></div>
+                                                {% else %}
+                                                    <div style="max-height:15em; overflow: hidden">
+                                                        {{ item.body|safe }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="d-inline text-muted" style="font-size: 70%">
+                                                    Опубликовано: {{ item.day|date:"d.m.Y H:i" }}
+                                                    {% if item.comments_cnt > 0 %}<b style="margin-left:55px;">Комментариев: {{ item.comments_cnt }}</b>{% endif %}
+                                                </div>
+
+                                                <nav class="nav" style="float:left; padding-top:5px;">
+                                                    <ul class="nav navbar">
+                                                        <li style="float:left">
+                                                        <button style="" type="button" class="btn btn-sm text-primary" onclick="window.location='{{ item.get_absolute_url }}'">Читать далее ...</button>
+                                                        </li>
+                                                        {% if user.is_staff %}
+                                                        <li style="float:left">
+                                                            <a class="nav-link" href="/admin/portal/newsentry/{{ item.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                                                        </li>
+                                                        <li style="float:left">
+                                                            <a class="nav-link" href="/admin/portal/newsentry/add/"><span class="oi oi-plus" title="Создать креатив" aria-hidden="true"></span></a>
+                                                        </li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </nav>
+                                            <!--</div>-->
+                                        <!--</div>-->
+                                        </div>
+
+
+                                    {% endif %}
+                                <!--</div>-->
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor%}
+            {% else %}
+                <div class=""><b><small>Новостей в данной рубрике пока нет.</small></b>
+                {% if user.is_staff %}
+                    <a class="nav-link" href="/admin/portal/newsentry/add/"><span class="oi oi-plus" title="Создать креатив" aria-hidden="true"></a>
+                {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
+{% endblock %}

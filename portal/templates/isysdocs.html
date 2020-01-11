@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="margin-top:25px;">
+    <div class="row" >
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+        <div class="col-sm-8">
+            <ul class="nav nav-tabs" style="margin-bottom:10px">
+                <li role="presentation" >
+                    <a href="/portal/isys/">Ссылки на информационные системы</a>
+                </li>
+                <li role="presentation" {% if mode == 'man' %}class="active"{% endif %}>
+                    <a href="/portal/isys_docs/">Инструкции пользователя ИС</a>
+                </li>
+                <li role="presentation" {% if mode == 'instr' %}class="active"{% endif %}>
+                    <a href="/portal/other_docs/">Прочие инструкции</a>
+                </li>
+            </ul>
+            {% if not isys_list %}
+                <p>К сожалению, данных пока нет.</p>
+            {% else %}
+                <ul class="nav nav-tabs" style="margin-bottom:10px">
+                    {% for isys in isys_list %}
+                    <li role="presentation" class="{% if isys == isys_default %}active{% endif %}">
+                        <a href="{{ isys.man_url }}">{{ isys.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if user.is_staff %}
+                    <a class="nav-link " href="/admin/portal/manualnav/add/"><span class="oi oi-plus" title="Создать раздел" aria-hidden="true"></span></a>
+                {% endif %}
+
+                {% if not doc %}
+                    {% if not sections %}
+                        <p>Разделов пользовательской документации пока не создано.</p>
+                    {% endif %}
+                    {% for sec in sections %}
+                        <div style="margin-left:{{ sec.lvl }}0px; margin-top:5px">
+                        {% if user.is_staff %}
+                            <a class="nav-link " href="/admin/portal/manualnav/{{ sec.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                        {% endif %}
+                        {% if sec.document %}
+                            <a href="{{ sec.get_doc_url }}">{{ sec.title }}</a>
+                        {% else %}
+                            <span>{{ sec.title }}</span>
+                        {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <div class="col-sm-3">
+                        {% if not sections %}
+                            <p>Разделов пользовательской документации пока не создано.</p>
+                        {% endif %}
+                        {% for sec in sections %}
+                            <div style="margin-left:{{ sec.lvl }}0px; margin-top:5px">
+                            {% if user.is_staff %}
+                                <a class="nav-link " href="/admin/portal/manualnav/{{ sec.id }}/change/"><span class="oi oi-pencil" title="Рихтовать!" aria-hidden="true"></span></a>
+                            {% endif %}
+                            {% if sec.document %}
+                                <a href="{{ sec.get_doc_url }}">{{ sec.title }}</a>
+                            {% else %}
+                                <span>{{ sec.title }}</span>
+                            {% endif %}
+                            </div>
+                        {% endfor %}
+                        </div>
+                        <div class="col-sm-9">
+
+                            {% include 'doc_content.html'%}
+
+                        </div>
+                    </div>
+                {% endif %}
+
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+<script>
+/*
+    $(document).ready(function (){
+        $('.isys_button').each(function(i){ $(this).css('height', $(this).css('width') ); });
+        $(window).on('resize', function(event){
+            $('.isys_button').each(function(i){ $(this).css('height', $(this).css('width'))});
+        });
+    });
+*/
+</script>
+
+{% endblock %}
+

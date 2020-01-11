@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% load static %}
+{% load chart_tags %}
+
+{% block head %}
+    {{ block.super }}
+<script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+
+<script src="{% static 'node_modules/chartist/dist/chartist.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'node_modules/chartist/dist/chartist.min.css' %}">
+<!--<link rel="stylesheet" href="{% static 'css/portal/main.css' %}">-->
+<script src="{% static 'node_modules/chartist-plugin-fill-donut/dist/chartist-plugin-fill-donut.js' %}"></script>
+<!--<script src="/static/node_modules/chartist-plugin-legend/chartist-plugin-legend.js"></script>-->
+    <style>
+        html, body {
+            height: 100%;
+        }
+        .map {
+            height: 550px;
+            width: 100%;
+        }
+        .ct-series-a .ct-point, .ct-series-a .ct-line, .ct-series-a .ct-bar, .ct-series-a .ct-slice-donut {
+            stroke: #e20610;
+        }
+        .ct-series-a .ct-slice-pie, .ct-series-a .ct-slice-donut-solid, .ct-series-a .ct-area {
+            fill: #e20610;
+        }
+        .ct-series-b .ct-point, .ct-series-b .ct-line, .ct-series-b .ct-bar, .ct-series-b .ct-slice-donut {
+            stroke: rgb(5,21,46); /* #6a6868; */
+        }
+        .ct-series-b .ct-slice-pie, .ct-series-b .ct-slice-donut-solid, .ct-series-b .ct-area {
+            fill: rgb(5,21,46); /* #6a6868; */
+        }
+        .ct-label {
+            fill: rgba(255, 255, 255, 1.0);
+            color: rgba(0, 0, 0, 0.0);
+            /* font-size: 0.8rem; */
+            font-size: 1rem;
+            line-height: 1;
+        }
+        h6 {
+            text-align: left;
+        }
+    </style>
+<link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/css/ol.css">
+{% endblock %}
+
+{%block content%}
+
+<div class="container-fluid" style="text-align:center; margin-top:25px;">
+    <div class="row">
+        <div class="col-sm-2">
+
+            {% include 'news_feed.html' %}
+
+        </div>
+
+        {% if not data_ready %}
+            <div class="col-sm-9"><h4 class="bg-warning">Извините, идет плановое обновление данных. Статистические показатели временно недоступны.</h4></div>
+        {% else%}
+            <div class="col-sm-9">
+            <!--<h1>Выполнение плана по поиску площадок на {{ current_year }} год</h1>-->
+            <div id="map" class="map"></div>
+            <script>
+               (function (){
+                    var new_height = Math.round(($(window).height() - $('#map').offset()['top']) * 0.7);
+                    $('#map').attr('height', new_height);
+                    console.log($(window).height());
+                    console.log($('#map').offset()['top']);
+                    console.log(new_height)
+                })();
+
+                var map = new ol.Map({
+                    target: 'map',
+                    layers: [
+                      new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                      })
+                    ],
+                    view: new ol.View({
+                      center: ol.proj.transform([90.6188, 60.7672], 'EPSG:4326', 'EPSG:3857'),
+                      zoom: 3.5
+                    })
+                });
+
+                function setupMapContainer(){
+                    var new_height = Math.round(($(window).height() - $('#map').offset()['top']) * 0.7);
+                    $('#map').removeClass('map')
+                    $('#map').attr('height', new_height);
+                    console.log($(window).height());
+                    console.log($('#map').offset()['top']);
+                    console.log(new_height);
+                    map.updateSize();
+                }
+
+                //setupMapContainer();
+
+                window.onresize = setupMapContainer;
+
+                //window.dispatchEvent(new Event('resize'));
+
+            </script>
+
+            <div class="container-fluid" style="margin-top:25px">
+                {% if last_load.finished_at %}
+                <div class="container-fluid text-right small"><b>Обновлено: {{ last_load.finished_at }}</b></div>
+                {% endif %}
+                <!--Установка дефолтных параметров диаграмм-бубликов -->
+                <script>
+                    var my_donut_chart_common_options = function ( hole_value_str ) {
+                        return {
+                            donut: true,
+                            donutWidth: 40,
+                            donutSolid: true,
+                            startAngle: 0,
+                            showLabel: true,
+                            width: 150,
+                            height: 150,
+                            plugins: [
+
+                                Chartist.plugins.fillDonut({
+                                    items: [{
+                                        content: '<i class="fa fa-tachometer"></i>',
+                                        position: 'bottom',
+                                        offsetY : 10,
+                                        offsetX: -2
+                                    }, {
+                                        content: '<h4>' + hole_value_str + '%</h4>'
+                                    }]
+                                })
+
+                            ]
+                        }
+                    }
+                </script>
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <h5 style="text-align: left">ВЫПОЛНЕНИЕ ПЛАНА ПО ПОИСКУ</h5>
+
+                        <div id="search_done_cnt" class="ct-chart" style="float:left; width:150px; height:150px"></div>
+                        <!--<div style="clear: both;"></div>-->
+
+                        <script>
+                            var chart = new Chartist.Pie('#search_done_cnt', {
+                                labels: ['{{ search_pie.search_done_cnt }}', '{{ search_pie.in_search_cnt }}'],
+                                series: [{{ search_pie.search_done_pct }}, {{search_pie.in_search_pct}} ]
+                            }, my_donut_chart_common_options( {{ search_pie.search_done_pct }} ));
+
+                        </script>
+                        <div class="double_pct_legend">
+                            <div class="legend_item">
+                                <div class="main_square"> </div>
+                                <div class="legend_text">Найдено площадок</div>
+                            </div><br/>
+                            <div class="legend_item">
+                                <div class="supplementary_square"> </div>
+                                <div class="legend_text">В поиске</div>
+                            </div>
+                        </div>
+                        <div style="clear: both;"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h5 style="text-align: left">ОФОРМЛЕНИЕ ДОГОВОРОВ</h5>
+
+                        <div id="signed_cnt" class="ct-chart" style="float:left; width:150px; height:150px"></div>
+                        <!--<div style="clear: both;"></div>-->
+
+                        <script>
+                            var chart = new Chartist.Pie('#signed_cnt', {
+                                labels: ['{{ contracted_pie.contracted_cnt }}', '{{ contracted_pie.not_contracted_cnt }}'],
+                                series: [{{ contracted_pie.contracted_pct }}, {{contracted_pie.not_contracted_pct}} ]
+                            }, my_donut_chart_common_options( {{ contracted_pie.contracted_pct }} ));
+                        </script>
+                        <div class="double_pct_legend">
+                            <div class="legend_item">
+                                <div class="main_square"> </div>
+                                <div class="legend_text">Подписано договоров</div>
+                            </div><br/>
+                            <div class="legend_item">
+                                <div class="supplementary_square"> </div>
+                                <div class="legend_text">Не подписано договоров</div>
+                            </div><br/><br/>
+                            <div class="legend_item">
+                                <div class="legend_comment_text"><div class="font-weight-bold">Примечание:</div></div>
+                                <div class="legend_comment_text">Найдено: {{ search_pie.search_done_cnt }};</div>
+                                <div class="legend_comment_text">Всего по плану: {{ search_pie.plan_cnt }}</div>
+                            </div>
+                        </div>
+                        <div style="clear: both;"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h5 style="text-align: left">ВВОД В ЭКСПЛУАТАЦИЮ</h5>
+
+                        <div id="started_cnt" class="ct-chart" style="float:left; width:150px; height:150px"></div>
+                        <!--<div style="clear: both;"></div>-->
+
+                        <script>
+                            var chart = new Chartist.Pie('#started_cnt', {
+                                labels: ['{{ started_pie.started_cnt }}', '{{ started_pie.not_started_cnt }}'],
+                                series: [{{ started_pie.started_pct }}, {{ started_pie.not_started_pct }} ]
+                            }, my_donut_chart_common_options( {{ started_pie.started_pct }} ));
+
+                        </script>
+                        <div class="double_pct_legend">
+                            <div class="legend_item">
+                                <div class="main_square"></div>
+                                <div class="legend_text">Введено в ТЭ</div>
+                            </div><br/>
+                            <div class="legend_item">
+                                <div class="supplementary_square"> </div>
+                                <div class="legend_text">Не введено в ТЭ</div>
+                            </div><br/><br/>
+                            <div class="legend_item">
+                                <div class="legend_comment_text" ><div class="font-weight-bold">Примечание:</div></div>
+                                <div class="legend_comment_text" >Найдено: {{ search_pie.search_done_cnt }};</div>
+                                <div class="legend_comment_text" >Всего по плану: {{ search_pie.plan_cnt }}</div>
+                            </div>
+                            <div style="clear: both;"></div>
+                        </div>
+                        <div style="clear: both;"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--<div class="col-sm-2"></div>-->
+
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+
+    $(document).ready(function(){
+        var first_load = true;
+
+        function createMapObject(){
+            return new ol.Map({
+                target: 'map',
+                layers: [
+                  new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                  })
+                ],
+                view: new ol.View({
+                  center: ol.proj.transform([90.6188, 60.7672], 'EPSG:4326', 'EPSG:3857'),
+                  zoom: 3.5
+                })
+              });
+        }
+
+        //var map_object = createMapObject();
+
+        function setupMapContainer(){
+            new_height = Math.round(($(window).height() - $('#map').offset()['top']) * 0.7);
+            //$('#map').empty();
+            $('#map').attr('height', new_height);
+            console.log($(window).height());
+            console.log($('#map').offset()['top']);
+            console.log(new_height);
+            //map_object = reCreateMapObject();
+            //map_object.updateSize();
+        }
+
+        function stretchMap(){
+            if (!first_load){
+                setupMapContainer();
+                map_object.updateSize();
+            } else {
+                first_load = false;
+            }
+        }
+
+        //setupMapContainer();
+
+        //$(window).resize(setupMapContainer);
+
+    });
+
+
+{% endblock %}

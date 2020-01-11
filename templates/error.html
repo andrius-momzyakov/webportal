@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content%}
+<div class="container">
+    <div style="margin-top: 25px">
+    {% if back_uri %}
+        <nav class="nav">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a class="nav-link" href="#" onclick="history.back()"><span class="oi oi-arrow-circle-left" title="Назад" style="font-size: 150%" aria-hidden="true"></span></a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+        <div class="bg-danger" >{{ text }}</div>
+    </div>
+</div>
+{% endblock %}
